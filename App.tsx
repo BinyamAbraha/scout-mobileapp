@@ -1,20 +1,19 @@
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import TabNavigator from './src/navigation/TabNavigator';
+import { testConnection } from './src/utils/supabase';
 
 export default function App() {
+  useEffect(() => {
+    // Test database connection on app start
+    testConnection();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <NavigationContainer>
       <StatusBar style="auto" />
-    </View>
+      <TabNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
