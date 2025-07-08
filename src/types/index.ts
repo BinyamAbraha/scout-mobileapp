@@ -13,6 +13,13 @@ export type RootTabParamList = {
   Profile: undefined;
 };
 
+export type RootStackParamList = {
+  Main: undefined;
+  Search: {
+    initialQuery?: string;
+  };
+};
+
 // Mood Types (keeping your existing)
 export type MoodType = "cozy" | "energetic" | "special" | "surprise";
 

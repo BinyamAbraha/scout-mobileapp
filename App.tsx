@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import TabNavigator from './src/navigation/TabNavigator';
+import StackNavigator from './src/navigation/StackNavigator';
 import { testConnection } from './src/utils/supabase';
+import { ThemeProvider } from './src/hooks/useTheme';
 
 export default function App() {
   useEffect(() => {
@@ -12,8 +13,10 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <StatusBar style="auto" />
-      <TabNavigator />
+      <ThemeProvider>
+        <StatusBar style="auto" />
+        <StackNavigator />
+      </ThemeProvider>
     </NavigationContainer>
   );
 }
