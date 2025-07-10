@@ -2,20 +2,23 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   ScrollView,
   StyleSheet,
   SafeAreaView,
   Alert,
   ActivityIndicator,
   FlatList,
-  TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import SearchBar from "../components/search/SearchBar";
-import CategoryPills from "../components/search/CategoryPills";
-import YelpVenueCard from "../components/venue/YelpVenueCard";
+import {
+  DSText,
+  DSSearchBar,
+  DSFilterPill,
+  DSVenueCard,
+  DSSectionHeader,
+} from "../components/ui/DesignSystem";
+import StyleGuide from "../design/StyleGuide";
 import {
   venueService,
   type Venue,
@@ -25,46 +28,33 @@ import { VenueAggregationService } from "../services/VenueAggregationService";
 import { weatherService } from "../services/weatherService";
 import type { Weather } from "../types";
 import { mockVenues, categories } from "../data/mockData";
+import { useNavigation } from "@react-navigation/native";
+import YelpVenueCard from "../components/venue/YelpVenueCard";
+
+const { Colors, Spacing, Typography } = StyleGuide;
 
 const HomeScreen = () => {
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
+  const navigation = useNavigation();
   const [venues, setVenues] = useState<Venue[]>(mockVenues);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [showMoodFilter, setShowMoodFilter] = useState(false);
 
   const aggregationService = VenueAggregationService.getInstance();
 
-  // Filter venues based on search and category
+  // Filter venues based on search only
   const filteredVenues = venues.filter((venue) => {
     const matchesSearch =
       !searchQuery ||
       venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       venue.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      !selectedCategory ||
-      venue.category.toLowerCase() === selectedCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
-  // Handle search
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  // Handle category selection
-  const handleCategoryPress = (categoryId: string) => {
-    setSelectedCategory(selectedCategory === categoryId ? "" : categoryId);
-  };
-
-  // Handle mood filter
-  const handleMoodFilter = (mood: MoodType) => {
-    setSelectedMood(selectedMood === mood ? null : mood);
-    setShowMoodFilter(false);
+  // Handle search navigation
+  const handleSearchFocus = () => {
+    (navigation as any).navigate("Search", { initialQuery: searchQuery });
   };
 
   // Handle venue press
@@ -76,57 +66,17 @@ const HomeScreen = () => {
     );
   };
 
-  // Render mood filter section
-  const renderMoodFilter = () => (
-    <View style={styles.moodFilterSection}>
-      <TouchableOpacity
-        style={styles.moodFilterButton}
-        onPress={() => setShowMoodFilter(!showMoodFilter)}
-      >
-        <Ionicons name="happy-outline" size={16} color="#666" />
-        <Text style={styles.moodFilterText}>
-          {selectedMood ? `${selectedMood} vibes` : "Filter by vibe"}
-        </Text>
-        <Ionicons name="chevron-down" size={16} color="#666" />
-      </TouchableOpacity>
-
-      {showMoodFilter && (
-        <View style={styles.moodOptions}>
-          {["cozy", "energetic", "special", "surprise"].map((mood) => (
-            <TouchableOpacity
-              key={mood}
-              style={[
-                styles.moodOption,
-                selectedMood === mood && styles.moodOptionSelected,
-              ]}
-              onPress={() => handleMoodFilter(mood as MoodType)}
-            >
-              <Text
-                style={[
-                  styles.moodOptionText,
-                  selectedMood === mood && styles.moodOptionTextSelected,
-                ]}
-              >
-                {mood}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-
   // Render venues list
   const renderVenuesList = () => (
     <View style={styles.venuesContainer}>
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#dc2626" />
-          <Text style={styles.loadingText}>Finding perfect spots...</Text>
+          <DSText style={styles.loadingText}>Finding perfect spots...</DSText>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <DSText style={styles.errorText}>{error}</DSText>
         </View>
       ) : filteredVenues.length > 0 ? (
         <FlatList
@@ -140,7 +90,7 @@ const HomeScreen = () => {
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No venues found.</Text>
+          <DSText style={styles.emptyText}>No venues found.</DSText>
         </View>
       )}
     </View>
@@ -150,31 +100,18 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
+      {/* Header with search only */}
       <View style={styles.header}>
-        <SearchBar
-          placeholder="Search for restaurants, cafes, etc."
+        <DSSearchBar
+          placeholder="Search for painters"
           value={searchQuery}
-          onChangeText={handleSearch}
-          onSubmit={handleSearch}
           navigateToSearch={true}
+          onFocus={handleSearchFocus}
         />
-
-        <CategoryPills
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onCategoryPress={handleCategoryPress}
-        />
-
-        {renderMoodFilter()}
       </View>
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {renderVenuesList()}
-      </ScrollView>
+      {/* Venues List */}
+      {renderVenuesList()}
     </SafeAreaView>
   );
 };
@@ -182,69 +119,17 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.gray100,
   },
   header: {
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
-    paddingBottom: 8,
+    backgroundColor: Colors.neutral.gray100,
+    paddingHorizontal: 0,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.md,
   },
   content: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
-  scrollContent: {
-    paddingBottom: 32,
-  },
-  moodFilterSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  moodFilterButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#e5e5e5",
-    alignSelf: "flex-start",
-    gap: 6,
-  },
-  moodFilterText: {
-    fontSize: 14,
-    color: "#666",
-    fontWeight: "500",
-  },
-  moodOptions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 8,
-    gap: 8,
-  },
-  moodOption: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: "#e5e5e5",
-  },
-  moodOptionSelected: {
-    backgroundColor: "#dc2626",
-    borderColor: "#dc2626",
-  },
-  moodOptionText: {
-    fontSize: 12,
-    color: "#666",
-    fontWeight: "500",
-    textTransform: "capitalize",
-  },
-  moodOptionTextSelected: {
-    color: "#fff",
-    fontWeight: "600",
+    backgroundColor: Colors.neutral.gray100,
   },
   venuesContainer: {
     flex: 1,
@@ -252,39 +137,42 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
+    paddingVertical: Spacing["4xl"],
   },
   loadingText: {
-    fontSize: 16,
-    color: "#64748b",
-    marginTop: 16,
+    marginTop: Spacing.lg,
+    textAlign: "center",
   },
   errorContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
-    paddingHorizontal: 24,
+    paddingVertical: Spacing["4xl"],
+    paddingHorizontal: Spacing.lg,
   },
   errorText: {
-    fontSize: 16,
-    color: "#ef4444",
+    color: Colors.semantic.error,
     textAlign: "center",
-    marginBottom: 20,
+  },
+  emptyText: {
+    color: Colors.neutral.gray500,
+    textAlign: "center",
   },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
-    paddingHorizontal: 24,
+    paddingVertical: Spacing["4xl"],
+    paddingHorizontal: Spacing.lg,
   },
-  emptyText: {
-    fontSize: 16,
-    color: "#64748b",
+  emptyIcon: {
+    marginBottom: Spacing.lg,
+  },
+  emptySubtext: {
     textAlign: "center",
-    marginBottom: 20,
+    marginTop: Spacing.sm,
   },
   venuesList: {
-    paddingBottom: 20,
+    paddingBottom: Spacing["3xl"],
+    backgroundColor: Colors.neutral.gray100,
   },
 });
 

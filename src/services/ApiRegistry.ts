@@ -9,8 +9,8 @@ import type {
 import { ApiConfigManager } from "./ApiConfigManager";
 import { YelpApiAdapter } from "./adapters/YelpApiAdapter";
 import { CityApiAdapter } from "./adapters/CityApiAdapter";
+import { FoursquareApiAdapter } from "./adapters/FoursquareApiAdapter";
 // TODO: Import other adapters as they are created
-// import { FoursquareApiAdapter } from './adapters/FoursquareApiAdapter';
 // import { GooglePlacesApiAdapter } from './adapters/GooglePlacesApiAdapter';
 // import { OpenStreetMapApiAdapter } from './adapters/OpenStreetMapApiAdapter';
 
@@ -45,10 +45,10 @@ export class ApiRegistry {
           case "city_apis":
             adapter = new CityApiAdapter(config);
             break;
+          case "foursquare":
+            adapter = new FoursquareApiAdapter(config);
+            break;
           // TODO: Add other adapters
-          // case 'foursquare':
-          //   adapter = new FoursquareApiAdapter(config);
-          //   break;
           // case 'google_places':
           //   adapter = new GooglePlacesApiAdapter(config);
           //   break;

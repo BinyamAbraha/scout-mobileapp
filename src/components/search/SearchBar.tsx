@@ -42,7 +42,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleFocus = () => {
     if (navigateToSearch) {
-      navigation.navigate('Search' as never, { initialQuery: localValue } as never);
+      (navigation as any).navigate("Search", { initialQuery: localValue });
     } else {
       onFocus?.();
     }
@@ -50,14 +50,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handlePress = () => {
     if (navigateToSearch) {
-      navigation.navigate('Search' as never, { initialQuery: localValue } as never);
+      (navigation as any).navigate("Search", { initialQuery: localValue });
     }
   };
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity 
-        style={styles.searchInputContainer} 
+      <TouchableOpacity
+        style={styles.searchInputContainer}
         onPress={handlePress}
         activeOpacity={navigateToSearch ? 0.7 : 1}
       >

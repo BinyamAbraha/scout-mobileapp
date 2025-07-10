@@ -109,12 +109,15 @@ export class CityApiAdapter extends BaseApiAdapter {
       });
 
       const response = await this.makeRequest<CityVenueData[]>(url);
-      
+
       if (response.length > 0) {
         return this.normalizeCityVenueData(response[0], endpoint);
       }
     } catch (error) {
-      console.error(`Error fetching venue details from ${endpoint.name}:`, error);
+      console.error(
+        `Error fetching venue details from ${endpoint.name}:`,
+        error,
+      );
     }
 
     return null;
@@ -141,7 +144,10 @@ export class CityApiAdapter extends BaseApiAdapter {
         );
         allVenues.push(...venues);
       } catch (error) {
-        console.error(`Error fetching by location from ${endpoint.name}:`, error);
+        console.error(
+          `Error fetching by location from ${endpoint.name}:`,
+          error,
+        );
       }
     }
 
@@ -182,10 +188,16 @@ export class CityApiAdapter extends BaseApiAdapter {
     const url = this.buildUrl(endpoint.url, "", params);
     const response = await this.makeRequest<CityVenueData[]>(url);
 
-    return response.map((venue) => this.normalizeCityVenueData(venue, endpoint));
+    return response.map((venue) =>
+      this.normalizeCityVenueData(venue, endpoint),
+    );
   }
 
-  private buildLocationFilter(lat: number, lng: number, radiusDegrees: number): string {
+  private buildLocationFilter(
+    lat: number,
+    lng: number,
+    radiusDegrees: number,
+  ): string {
     return `within_circle(location, ${lat}, ${lng}, ${radiusDegrees})`;
   }
 
@@ -207,7 +219,9 @@ export class CityApiAdapter extends BaseApiAdapter {
     venue: CityVenueData,
     endpoint: CityApiEndpoint,
   ): RawVenueData {
-    const endpointIndex = this.endpoints.findIndex((e) => e.name === endpoint.name);
+    const endpointIndex = this.endpoints.findIndex(
+      (e) => e.name === endpoint.name,
+    );
     const externalId = `city_${endpointIndex}_${this.getVenueId(venue, endpoint)}`;
 
     return {
@@ -245,15 +259,13 @@ export class CityApiAdapter extends BaseApiAdapter {
   }
 
   private getVenueName(venue: CityVenueData): string {
-    return (
-      venue.name ||
-      venue.business_name ||
-      venue.dba ||
-      "Unknown Business"
-    );
+    return venue.name || venue.business_name || venue.dba || "Unknown Business";
   }
 
-  private getVenueAddress(venue: CityVenueData, endpoint: CityApiEndpoint): string {
+  private getVenueAddress(
+    venue: CityVenueData,
+    endpoint: CityApiEndpoint,
+  ): string {
     const address = venue.address || venue.street_address || "";
     const city = venue.city || endpoint.city;
     const state = venue.state || endpoint.state;
@@ -262,21 +274,31 @@ export class CityApiAdapter extends BaseApiAdapter {
     return [address, city, state, zip].filter(Boolean).join(", ");
   }
 
-  private getVenueCoordinates(venue: CityVenueData): { lat: number; lng: number } | undefined {
+  private getVenueCoordinates(
+    venue: CityVenueData,
+  ): { lat: number; lng: number } | undefined {
     let lat: number | undefined;
     let lng: number | undefined;
 
     // Try different coordinate field formats
     if (venue.latitude && venue.longitude) {
-      lat = typeof venue.latitude === "string" ? parseFloat(venue.latitude) : venue.latitude;
-      lng = typeof venue.longitude === "string" ? parseFloat(venue.longitude) : venue.longitude;
+      lat =
+        typeof venue.latitude === "string"
+          ? parseFloat(venue.latitude)
+          : venue.latitude;
+      lng =
+        typeof venue.longitude === "string"
+          ? parseFloat(venue.longitude)
+          : venue.longitude;
     } else if (venue.location?.latitude && venue.location?.longitude) {
-      lat = typeof venue.location.latitude === "string" 
-        ? parseFloat(venue.location.latitude) 
-        : venue.location.latitude;
-      lng = typeof venue.location.longitude === "string" 
-        ? parseFloat(venue.location.longitude) 
-        : venue.location.longitude;
+      lat =
+        typeof venue.location.latitude === "string"
+          ? parseFloat(venue.location.latitude)
+          : venue.location.latitude;
+      lng =
+        typeof venue.location.longitude === "string"
+          ? parseFloat(venue.location.longitude)
+          : venue.location.longitude;
     }
 
     if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
@@ -288,10 +310,7 @@ export class CityApiAdapter extends BaseApiAdapter {
 
   private getVenueCategory(venue: CityVenueData): string {
     return (
-      venue.category ||
-      venue.business_type ||
-      venue.license_type ||
-      "Business"
+      venue.category || venue.business_type || venue.license_type || "Business"
     );
   }
 
@@ -299,11 +318,14 @@ export class CityApiAdapter extends BaseApiAdapter {
     return venue.phone || "";
   }
 
-  private getVenueDescription(venue: CityVenueData, endpoint: CityApiEndpoint): string {
+  private getVenueDescription(
+    venue: CityVenueData,
+    endpoint: CityApiEndpoint,
+  ): string {
     const name = this.getVenueName(venue);
     const category = this.getVenueCategory(venue);
     const source = `${endpoint.city} Open Data`;
-    
+
     return `${name} - ${category} (${source})`;
   }
 
@@ -314,15 +336,15 @@ export class CityApiAdapter extends BaseApiAdapter {
 
   private getVenueFeatures(venue: CityVenueData): string[] {
     const features: string[] = [];
-    
+
     // Add features based on license type or category
     if (venue.license_type) {
       features.push("licensed");
     }
-    
+
     // Add government-verified feature
     features.push("government-verified");
-    
+
     return features;
   }
 }

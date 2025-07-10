@@ -594,23 +594,23 @@ export class DataNormalizationEngine {
       "liquor store": "Shopping",
       "tobacco retail dealer": "Shopping",
       "catering establishment": "Restaurant",
-      
-      // SF specific categories  
+
+      // SF specific categories
       "restaurants - food service": "Restaurant",
       "retail sales": "Shopping",
-      "entertainment": "Entertainment",
+      entertainment: "Entertainment",
       "personal services": "Services",
-      
+
       // LA specific categories
-      "restaurant": "Restaurant",
-      "retail": "Shopping",
+      restaurant: "Restaurant",
+      retail: "Shopping",
       "entertainment venue": "Entertainment",
       "business license": "Business",
-      
+
       // Common government license types
-      "licensed": "Business",
-      "business": "Business",
-      "commercial": "Business",
+      licensed: "Business",
+      business: "Business",
+      commercial: "Business",
     };
 
     const normalized = category.toLowerCase();

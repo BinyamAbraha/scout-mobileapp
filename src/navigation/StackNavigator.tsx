@@ -1,8 +1,8 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import TabNavigator from './TabNavigator';
-import SearchScreen from '../screens/SearchScreen';
-import { RootStackParamList } from '../types';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import TabNavigator from "./TabNavigator";
+import SearchScreen from "../screens/SearchScreen";
+import { RootStackParamList } from "../types";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -14,12 +14,12 @@ export default function StackNavigator() {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen 
-        name="Search" 
+      <Stack.Screen
+        name="Search"
         component={SearchScreen}
         options={{
-          presentation: 'modal',
-          animationTypeForReplace: 'push',
+          presentation: "modal",
+          animationTypeForReplace: "push",
           cardStyleInterpolator: ({ current, layouts }) => {
             return {
               cardStyle: {

@@ -1,6 +1,13 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
-import { MoodType } from '../../types';
+import React, { useEffect, useRef } from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Animated,
+  ViewStyle,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { MoodType } from "../../types";
 
 interface MoodCardProps {
   mood: MoodType;
@@ -11,15 +18,42 @@ interface MoodCardProps {
   style?: ViewStyle;
 }
 
-const moodColors: Record<MoodType, string[]> = {
-  cozy: ['#ffb347', '#ff8c42'],
-  energetic: ['#00d4ff', '#ff6b6b'],
-  special: ['#e8b4b8', '#c2185b'],
-  surprise: ['#667eea', '#764ba2'],
+const moodColors: Record<MoodType, [string, string][]> = {
+  cozy: [
+    ["#ffb347", "#ff8c42"],
+    ["#ff6b6b", "#ffb347"],
+    ["#ff8c42", "#e67e22"],
+  ],
+  energetic: [
+    ["#00d4ff", "#ff6b6b"],
+    ["#ff6b6b", "#4ecdc4"],
+    ["#4ecdc4", "#00d4ff"],
+  ],
+  special: [
+    ["#e8b4b8", "#c2185b"],
+    ["#c2185b", "#8e44ad"],
+    ["#8e44ad", "#e8b4b8"],
+  ],
+  surprise: [
+    ["#667eea", "#764ba2"],
+    ["#764ba2", "#667eea"],
+    ["#667eea", "#5a67d8"],
+  ],
 };
 
-export default function MoodCard({ mood, title, subtitle, icon, onPress, style }: MoodCardProps) {
+export default function MoodCard({
+  mood,
+  title,
+  subtitle,
+  icon,
+  onPress,
+  style,
+}: MoodCardProps) {
   const scaleValue = new Animated.Value(1);
+  const colorIndexRef = useRef(0);
+  const [currentColors, setCurrentColors] = React.useState<[string, string]>(
+    moodColors[mood][0],
+  );
 
   const handlePressIn = () => {
     Animated.spring(scaleValue, {
@@ -36,64 +70,83 @@ export default function MoodCard({ mood, title, subtitle, icon, onPress, style }
     }).start();
   };
 
-  const handlePress = () => {
-    // Add haptic feedback
-    onPress(mood);
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const colors = moodColors[mood];
+      colorIndexRef.current = (colorIndexRef.current + 1) % colors.length;
+      setCurrentColors(colors[colorIndexRef.current]);
+    }, 2000);
 
-  const getMoodGradientStyle = (): ViewStyle => {
-    const colors = moodColors[mood];
-    return {
-      backgroundColor: colors[0], // Fallback for devices that don't support gradients
-    };
+    return () => clearInterval(interval);
+  }, [mood]);
+
+  const handlePress = () => {
+    onPress(mood);
   };
 
   return (
     <Animated.View style={[{ transform: [{ scale: scaleValue }] }, style]}>
       <TouchableOpacity
-        style={[styles.card, getMoodGradientStyle()]}
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         activeOpacity={0.9}
+        style={styles.touchable}
       >
-        <Text style={styles.icon}>{icon}</Text>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <LinearGradient
+          colors={currentColors}
+          style={styles.card}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.icon}>{icon}</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '47%',
-    borderRadius: 20,
-    padding: 20,
-    minHeight: 120,
-    justifyContent: 'space-between',
-    shadowColor: '#000',
+  touchable: {
+    width: 150,
+    height: 150,
+    borderRadius: 24,
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
+    marginBottom: 16,
+  },
+  card: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 24,
+    padding: 20,
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   icon: {
     fontSize: 32,
     marginBottom: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'white',
+    fontSize: 20,
+    fontWeight: "700",
+    color: "white",
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
-    lineHeight: 16,
+    fontSize: 13,
+    color: "rgba(255, 255, 255, 0.9)",
+    lineHeight: 18,
+    fontWeight: "500",
   },
 });
