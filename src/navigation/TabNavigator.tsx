@@ -1,11 +1,11 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, Compass, Calendar, Heart, User } from "lucide-react-native";
+import { Home, Compass, Layers, Heart, User } from "lucide-react-native";
 
 // Import screens
 import HomeScreen from "../screens/HomeScreen";
 import ExploreScreen from "../screens/ExploreScreen";
-import PlansScreen from "../screens/PlansScreen";
+import ListsScreen from "../screens/ListsScreen";
 import SavedScreen from "../screens/SavedScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
@@ -40,9 +40,9 @@ export default function TabNavigator() {
                   strokeWidth={strokeWidth}
                 />
               );
-            case "Plans":
+            case "Lists":
               return (
-                <Calendar
+                <Layers
                   color={iconColor}
                   size={iconSize}
                   strokeWidth={strokeWidth}
@@ -104,7 +104,7 @@ export default function TabNavigator() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Explore" component={ExploreScreen} />
-      <Tab.Screen name="Plans" component={PlansScreen} />
+      <Tab.Screen name="Lists" component={ListsScreen} />
       <Tab.Screen name="Saved" component={SavedScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

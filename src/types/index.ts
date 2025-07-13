@@ -8,17 +8,57 @@ export type RootTabParamList = {
     weatherContext?: Weather;
     searchQuery?: string;
   };
-  Plans: undefined;
+  Lists: undefined;
   Saved: undefined;
   Profile: undefined;
 };
 
 export type RootStackParamList = {
+  Landing: {
+    animationMode: AnimationMode;
+  };
   Main: undefined;
   Search: {
     initialQuery?: string;
   };
 };
+
+// Animation Types
+export type AnimationMode = "full" | "brief" | "skip";
+
+export type AnimationTrigger =
+  | "first_launch"
+  | "major_update"
+  | "special_occasion"
+  | "reinstall"
+  | "first_daily"
+  | "long_absence"
+  | "force_quit"
+  | "location_change"
+  | "background_return"
+  | "quick_switch"
+  | "active_session";
+
+export interface AppSession {
+  lastAppOpen: number;
+  lastAppClose: number;
+  sessionDuration: number;
+  backgroundTime: number;
+  isFromBackground: boolean;
+  forceQuitDetected: boolean;
+  lastLocation?: {
+    lat: number;
+    lng: number;
+    timestamp: number;
+  };
+}
+
+export interface UserPreferences {
+  quickStart: boolean;
+  animationPreference: "always" | "reduced" | "minimal";
+  birthday?: string;
+  specialDates?: string[];
+}
 
 // Mood Types (keeping your existing)
 export type MoodType = "cozy" | "energetic" | "special" | "surprise";
