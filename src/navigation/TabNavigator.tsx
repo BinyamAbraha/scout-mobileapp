@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text } from "react-native";
+import { Home, Compass, Calendar, Heart, User } from "lucide-react-native";
 
 // Import screens
 import HomeScreen from "../screens/HomeScreen";
@@ -10,7 +10,7 @@ import SavedScreen from "../screens/SavedScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 // Import types
-import { RootTabParamList } from "../types";
+import type { RootTabParamList } from "../types";
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -18,42 +18,64 @@ export default function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
+        tabBarIcon: ({ focused }) => {
+          const iconColor = focused ? "#FF6B35" : "#6B7280";
+          const iconSize = 24;
+          const strokeWidth = 2;
 
           switch (route.name) {
             case "Home":
-              iconName = "🏠";
-              break;
+              return (
+                <Home
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
             case "Explore":
-              iconName = "🗺️";
-              break;
+              return (
+                <Compass
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
             case "Plans":
-              iconName = "📅";
-              break;
+              return (
+                <Calendar
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
             case "Saved":
-              iconName = "❤️";
-              break;
+              return (
+                <Heart
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
             case "Profile":
-              iconName = "👤";
-              break;
+              return (
+                <User
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
             default:
-              iconName = "❓";
+              return (
+                <Home
+                  color={iconColor}
+                  size={iconSize}
+                  strokeWidth={strokeWidth}
+                />
+              );
           }
-
-          return (
-            <Text
-              style={{
-                fontSize: focused ? 28 : 24,
-                opacity: focused ? 1 : 0.6,
-              }}
-            >
-              {iconName}
-            </Text>
-          );
         },
-        tabBarActiveTintColor: "#667eea",
-        tabBarInactiveTintColor: "#6b7280",
+        tabBarActiveTintColor: "#FF6B35",
+        tabBarInactiveTintColor: "#6B7280",
         tabBarStyle: {
           backgroundColor: "rgba(255, 255, 255, 0.95)",
           borderTopWidth: 0,
@@ -73,7 +95,7 @@ export default function TabNavigator() {
           elevation: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: "500",
           marginTop: 4,
         },
