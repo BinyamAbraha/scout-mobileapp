@@ -30,6 +30,7 @@ import type { Weather } from "../types";
 import { mockVenues, categories } from "../data/mockData";
 import { useNavigation } from "@react-navigation/native";
 import YelpVenueCard from "../components/venue/YelpVenueCard";
+import FilterModal from "../components/modals/FilterModal";
 
 const { Colors, Spacing, Typography } = StyleGuide;
 
@@ -39,6 +40,8 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
   const aggregationService = VenueAggregationService.getInstance();
 
@@ -55,6 +58,25 @@ const HomeScreen = () => {
   // Handle search navigation
   const handleSearchFocus = () => {
     (navigation as any).navigate("Search", { initialQuery: searchQuery });
+  };
+
+  // Handle filter press
+  const handleFilterPress = () => {
+    setShowFilterModal(true);
+  };
+
+  // Handle filter selection
+  const handleFilterSelection = (filterId: string) => {
+    setSelectedFilters((prev) =>
+      prev.includes(filterId)
+        ? prev.filter((id) => id !== filterId)
+        : [...prev, filterId],
+    );
+  };
+
+  // Close filter modal
+  const handleCloseFilterModal = () => {
+    setShowFilterModal(false);
   };
 
   // Handle venue press
@@ -103,15 +125,25 @@ const HomeScreen = () => {
       {/* Header with search only */}
       <View style={styles.header}>
         <DSSearchBar
-          placeholder="Search for painters"
+          placeholder="Find things to do in San Francisco"
           value={searchQuery}
           navigateToSearch={true}
           onFocus={handleSearchFocus}
+          showFilterButton={true}
+          onFilterPress={handleFilterPress}
         />
       </View>
 
       {/* Venues List */}
       {renderVenuesList()}
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={handleCloseFilterModal}
+        selectedFilters={selectedFilters}
+        onFilterPress={handleFilterSelection}
+      />
     </SafeAreaView>
   );
 };

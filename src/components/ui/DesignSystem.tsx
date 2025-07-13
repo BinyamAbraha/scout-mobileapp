@@ -309,11 +309,15 @@ export const DSFilterPill: React.FC<DSFilterPillProps> = ({
 interface DSSearchBarProps extends TextInputProps {
   onFocus?: () => void;
   navigateToSearch?: boolean;
+  onFilterPress?: () => void;
+  showFilterButton?: boolean;
 }
 
 export const DSSearchBar: React.FC<DSSearchBarProps> = ({
   onFocus,
   navigateToSearch = false,
+  onFilterPress,
+  showFilterButton = false,
   style,
   ...props
 }) => {
@@ -328,11 +332,20 @@ export const DSSearchBar: React.FC<DSSearchBarProps> = ({
       <AnimatedGradientSearchButton />
       <TextInput
         style={styles.searchInput}
-        placeholderTextColor={Colors.neutral.gray400}
+        placeholderTextColor="#6B7280"
         editable={!navigateToSearch}
         pointerEvents={navigateToSearch ? "none" : "auto"}
         {...props}
       />
+      {showFilterButton && (
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={onFilterPress}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="options" size={20} color={Colors.neutral.gray600} />
+        </TouchableOpacity>
+      )}
     </>
   );
 
@@ -484,17 +497,20 @@ const styles = StyleSheet.create({
   yelpSearchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.neutral.white,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    marginHorizontal: Spacing.md,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 0,
+    marginHorizontal: 16,
     marginVertical: Spacing.sm,
+    height: 50,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   searchIconContainer: {
     borderRadius: 20,
@@ -517,9 +533,20 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,
     color: Colors.neutral.gray700,
     paddingVertical: 0,
+    paddingRight: 8,
+  },
+  filterButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#F3F4F6",
+    marginLeft: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 36,
+    height: 36,
   },
 
   // Section header styles
