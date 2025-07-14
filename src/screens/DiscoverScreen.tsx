@@ -31,6 +31,9 @@ import { mockVenues, categories } from "../data/mockData";
 import { useNavigation } from "@react-navigation/native";
 import YelpVenueCard from "../components/venue/YelpVenueCard";
 import FilterModal from "../components/modals/FilterModal";
+import MoodSelector, {
+  type MoodType as MoodSelectorType,
+} from "../components/mood/MoodSelector";
 
 const { Colors, Spacing, Typography } = StyleGuide;
 
@@ -42,6 +45,7 @@ const DiscoverScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedMood, setSelectedMood] = useState<MoodSelectorType>();
 
   const aggregationService = VenueAggregationService.getInstance();
 
@@ -77,6 +81,11 @@ const DiscoverScreen = () => {
   // Close filter modal
   const handleCloseFilterModal = () => {
     setShowFilterModal(false);
+  };
+
+  // Handle mood selection
+  const handleMoodSelect = (mood: MoodSelectorType) => {
+    setSelectedMood(mood);
   };
 
   // Handle venue press
@@ -133,6 +142,12 @@ const DiscoverScreen = () => {
           onFilterPress={handleFilterPress}
         />
       </View>
+
+      {/* Mood Selector */}
+      <MoodSelector
+        onMoodSelect={handleMoodSelect}
+        selectedMood={selectedMood}
+      />
 
       {/* Venues List */}
       {renderVenuesList()}
