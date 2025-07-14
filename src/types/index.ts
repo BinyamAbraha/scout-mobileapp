@@ -2,12 +2,7 @@
 
 // Navigation Types (keeping your existing)
 export type RootTabParamList = {
-  Home: undefined;
-  Explore: {
-    selectedMood?: string;
-    weatherContext?: Weather;
-    searchQuery?: string;
-  };
+  Discover: undefined;
   Lists: undefined;
   Saved: undefined;
   Profile: undefined;

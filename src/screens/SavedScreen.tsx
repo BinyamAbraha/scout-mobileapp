@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 
-export default function ExploreScreen() {
+export default function SavedScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.center}>

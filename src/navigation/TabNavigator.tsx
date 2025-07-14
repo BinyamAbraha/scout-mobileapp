@@ -1,10 +1,9 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, Compass, Layers, Heart, User } from "lucide-react-native";
+import { Compass, Layers, Heart, User } from "lucide-react-native";
 
 // Import screens
-import HomeScreen from "../screens/HomeScreen";
-import ExploreScreen from "../screens/ExploreScreen";
+import DiscoverScreen from "../screens/DiscoverScreen";
 import ListsScreen from "../screens/ListsScreen";
 import SavedScreen from "../screens/SavedScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -24,15 +23,7 @@ export default function TabNavigator() {
           const strokeWidth = 2;
 
           switch (route.name) {
-            case "Home":
-              return (
-                <Home
-                  color={iconColor}
-                  size={iconSize}
-                  strokeWidth={strokeWidth}
-                />
-              );
-            case "Explore":
+            case "Discover":
               return (
                 <Compass
                   color={iconColor}
@@ -66,7 +57,7 @@ export default function TabNavigator() {
               );
             default:
               return (
-                <Home
+                <Compass
                   color={iconColor}
                   size={iconSize}
                   strokeWidth={strokeWidth}
@@ -102,8 +93,7 @@ export default function TabNavigator() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Explore" component={ExploreScreen} />
+      <Tab.Screen name="Discover" component={DiscoverScreen} />
       <Tab.Screen name="Lists" component={ListsScreen} />
       <Tab.Screen name="Saved" component={SavedScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

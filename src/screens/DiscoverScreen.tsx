@@ -1,4 +1,4 @@
-// src/screens/HomeScreen.tsx
+// src/screens/DiscoverScreen.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -34,7 +34,7 @@ import FilterModal from "../components/modals/FilterModal";
 
 const { Colors, Spacing, Typography } = StyleGuide;
 
-const HomeScreen = () => {
+const DiscoverScreen = () => {
   const navigation = useNavigation();
   const [venues, setVenues] = useState<Venue[]>(mockVenues);
   const [loading, setLoading] = useState(false);
@@ -208,4 +208,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default DiscoverScreen;
