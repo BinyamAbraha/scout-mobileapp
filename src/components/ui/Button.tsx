@@ -1,8 +1,14 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
 
-type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'mood';
-type ButtonSize = 'small' | 'medium' | 'large';
+type ButtonVariant = "primary" | "secondary" | "accent" | "mood";
+type ButtonSize = "small" | "medium" | "large";
 
 interface ButtonProps {
   title: string;
@@ -18,8 +24,8 @@ interface ButtonProps {
 export default function Button({
   title,
   onPress,
-  variant = 'primary',
-  size = 'medium',
+  variant = "primary",
+  size = "medium",
   disabled = false,
   style,
   textStyle,
@@ -28,9 +34,9 @@ export default function Button({
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
       borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: '#000',
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
@@ -46,10 +52,14 @@ export default function Button({
 
     // Variant styles
     const variantStyles: Record<ButtonVariant, ViewStyle> = {
-      primary: { backgroundColor: '#667eea' },
-      secondary: { backgroundColor: '#e2e8f0', borderWidth: 1, borderColor: '#cbd5e0' },
-      accent: { backgroundColor: '#ff6b6b' },
-      mood: { backgroundColor: moodColor || '#667eea' },
+      primary: { backgroundColor: "#667eea" },
+      secondary: {
+        backgroundColor: "#e2e8f0",
+        borderWidth: 1,
+        borderColor: "#cbd5e0",
+      },
+      accent: { backgroundColor: "#ff6b6b" },
+      mood: { backgroundColor: moodColor || "#667eea" },
     };
 
     return {
@@ -62,8 +72,8 @@ export default function Button({
 
   const getTextStyle = (): TextStyle => {
     const baseTextStyle: TextStyle = {
-      fontWeight: '600',
-      textAlign: 'center',
+      fontWeight: "600",
+      textAlign: "center",
     };
 
     const sizeTextStyles: Record<ButtonSize, TextStyle> = {
@@ -73,10 +83,10 @@ export default function Button({
     };
 
     const variantTextStyles: Record<ButtonVariant, TextStyle> = {
-      primary: { color: 'white' },
-      secondary: { color: '#4a5568' },
-      accent: { color: 'white' },
-      mood: { color: 'white' },
+      primary: { color: "white" },
+      secondary: { color: "#4a5568" },
+      accent: { color: "white" },
+      mood: { color: "white" },
     };
 
     return {

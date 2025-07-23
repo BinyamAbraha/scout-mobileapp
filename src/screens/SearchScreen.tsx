@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
@@ -9,10 +8,20 @@ import {
   SafeAreaView,
   Keyboard,
   Animated,
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import {
+  DSText,
+  DSButton,
+  DSFilterPill,
+  DSSectionHeader,
+  Icons,
+} from "../components/ui/DesignSystem";
+import StyleGuide from "../design/StyleGuide";
+
+const { Colors, Spacing, Typography, Borders, Shadows } = StyleGuide;
 
 interface SearchScreenProps {
   route?: {
@@ -24,21 +33,33 @@ interface SearchScreenProps {
 
 const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState(route?.params?.initialQuery || '');
+  const [searchQuery, setSearchQuery] = useState(
+    route?.params?.initialQuery || "",
+  );
   const [recentSearches, setRecentSearches] = useState([
-    'Sushi',
-    'Best Restaurants',
+    "Sushi",
+    "Best Restaurants",
   ]);
   const searchInputRef = useRef<TextInput>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const quickFilters = [
-    { id: 'restaurants', name: 'Restaurants', icon: 'restaurant' },
-    { id: 'food-trucks', name: 'Food Trucks', icon: 'car' },
-    { id: 'grocery', name: 'Grocery', icon: 'storefront' },
-    { id: 'laundromat', name: 'Laundromat', icon: 'shirt' },
-    { id: 'slushie', name: 'Slushie', icon: 'snow' },
+    { id: "restaurants", name: "Restaurants", icon: "restaurant-outline" },
+    { id: "food-trucks", name: "Food Trucks", icon: "car-outline" },
+    { id: "grocery", name: "Grocery", icon: "storefront-outline" },
+    { id: "laundromat", name: "Laundromat", icon: "shirt-outline" },
+    { id: "slushie", name: "Slushie", icon: "snow-outline" },
   ];
+
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  const handleFilterPress = (filterId: string) => {
+    setSelectedFilters((prev) =>
+      prev.includes(filterId)
+        ? prev.filter((id) => id !== filterId)
+        : [...prev, filterId],
+    );
+  };
 
   useEffect(() => {
     // Focus input and show keyboard
@@ -63,9 +84,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
     if (searchQuery.trim()) {
       // Add to recent searches if not already there
       if (!recentSearches.includes(searchQuery.trim())) {
-        setRecentSearches(prev => [searchQuery.trim(), ...prev.slice(0, 4)]);
+        setRecentSearches((prev) => [searchQuery.trim(), ...prev.slice(0, 4)]);
       }
-      
+
       Keyboard.dismiss();
       // Navigate back to home with search results
       navigation.goBack();
@@ -78,9 +99,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
   };
 
   const handleQuickFilter = (filterId: string) => {
-    const filter = quickFilters.find(f => f.id === filterId);
+    const filter = quickFilters.find((f) => f.id === filterId);
     if (filter) {
       setSearchQuery(filter.name);
+      handleFilterPress(filterId);
     }
   };
 
@@ -104,40 +126,38 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      
+
       <Animated.View style={[styles.content, animatedStyle]}>
         {/* Header with search input */}
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={handleBack}
-          >
-            <Ionicons name="arrow-back" size={24} color="#333" />
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Ionicons
+              name="arrow-back-outline"
+              size={Icons.size.lg}
+              color={Colors.neutral.gray700}
+            />
           </TouchableOpacity>
-          
+
           <View style={styles.searchContainer}>
             <TextInput
               ref={searchInputRef}
               style={styles.searchInput}
               placeholder="cleaners, movers, sushi, delivery, etc."
-              placeholderTextColor="#999"
+              placeholderTextColor={Colors.neutral.gray400}
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
               returnKeyType="search"
-              selectionColor="#007AFF"
+              selectionColor={Colors.primary.red}
             />
           </View>
-          
-          <TouchableOpacity 
-            style={styles.searchButton}
-            onPress={handleSearch}
-          >
-            <Text style={styles.searchButtonText}>search</Text>
-          </TouchableOpacity>
+
+          <DSButton variant="primary" size="sm" onPress={handleSearch}>
+            search
+          </DSButton>
         </View>
 
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -146,14 +166,14 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
           <View style={styles.locationSection}>
             <TouchableOpacity style={styles.locationButton}>
               <Ionicons name="location" size={20} color="#007AFF" />
-              <Text style={styles.locationText}>Current Location</Text>
+              <DSText style={styles.locationText}>Current Location</DSText>
             </TouchableOpacity>
           </View>
 
           {/* Quick Filters */}
           <View style={styles.quickFiltersSection}>
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.quickFiltersScroll}
             >
@@ -164,7 +184,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
                   onPress={() => handleQuickFilter(filter.id)}
                 >
                   <Ionicons name={filter.icon as any} size={16} color="#666" />
-                  <Text style={styles.quickFilterText}>{filter.name}</Text>
+                  <DSText style={styles.quickFilterText}>{filter.name}</DSText>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -173,7 +193,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
           {/* Recently searched */}
           {recentSearches.length > 0 && (
             <View style={styles.recentSection}>
-              <Text style={styles.sectionTitle}>Recently searched</Text>
+              <DSText style={styles.sectionTitle}>Recently searched</DSText>
               {recentSearches.map((query, index) => (
                 <TouchableOpacity
                   key={index}
@@ -181,7 +201,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
                   onPress={() => handleRecentSearch(query)}
                 >
                   <Ionicons name="time-outline" size={20} color="#999" />
-                  <Text style={styles.recentText}>{query}</Text>
+                  <DSText style={styles.recentText}>{query}</DSText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -195,19 +215,19 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-    backgroundColor: '#fff',
+    borderBottomColor: "#e5e5e5",
+    backgroundColor: "#fff",
   },
   backButton: {
     marginRight: 12,
@@ -218,92 +238,76 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   searchInput: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-  },
-  searchButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  searchButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    backgroundColor: Colors.neutral.gray100,
+    borderRadius: Borders.radius.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    fontSize: Typography.fontSize.base,
+    color: Colors.neutral.gray700,
+    borderWidth: Borders.width.thin,
+    borderColor: Colors.neutral.gray200,
   },
   scrollView: {
     flex: 1,
   },
   locationSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    borderBottomWidth: Borders.width.thin,
+    borderBottomColor: Colors.neutral.gray200,
   },
   locationButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.sm,
   },
   locationText: {
-    fontSize: 16,
-    color: '#007AFF',
-    marginLeft: 12,
-    fontWeight: '500',
+    marginLeft: Spacing.md,
+    fontWeight: "500",
   },
   quickFiltersSection: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
+    borderBottomWidth: Borders.width.thin,
+    borderBottomColor: Colors.neutral.gray200,
   },
   quickFiltersScroll: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  quickFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    gap: 8,
-  },
-  quickFilterText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    gap: Spacing.sm,
+    paddingRight: Spacing.lg,
   },
   recentSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
   },
   recentItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.md,
+    borderBottomWidth: Borders.width.thin,
+    borderBottomColor: Colors.neutral.gray200,
   },
   recentText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 12,
+    marginLeft: Spacing.md,
+  },
+  quickFilter: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.neutral.gray100,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: Borders.radius.md,
+    marginRight: Spacing.sm,
+  },
+  quickFilterText: {
+    marginLeft: Spacing.sm,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.neutral.gray600,
+  },
+  sectionTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.neutral.gray900,
+    marginBottom: Spacing.md,
   },
 });
 

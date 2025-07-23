@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 
-export default function SavedScreen() {
+export default function ListsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.center}>
-        <Text style={styles.title}>❤️ Saved</Text>
-        <Text style={styles.subtitle}>Search and discover venues</Text>
+        <Text style={styles.title}>📋 Lists</Text>
+        <Text style={styles.subtitle}>Lists feature coming soon!</Text>
       </View>
     </SafeAreaView>
   );
