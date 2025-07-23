@@ -81,11 +81,11 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 30000,
       },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY),
+      isEnabled: false, // Disabled - no API key provided
       priority: 9,
     });
 
-    // OpenStreetMap (Nominatim) Configuration
+    // OpenStreetMap (Nominatim) Configuration - DISABLED (no adapter)
     this.configs.set("openstreetmap", {
       source: "openstreetmap",
       apiKey: "", // No API key needed for Nominatim
@@ -101,7 +101,7 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 20000,
       },
-      isEnabled: true,
+      isEnabled: false, // Disabled until adapter is implemented
       priority: 5,
     });
 
@@ -121,7 +121,7 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 30000,
       },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_NYC_API_KEY),
+      isEnabled: false, // Disabled - no adapter implemented
       priority: 6,
     });
 
@@ -141,7 +141,7 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 30000,
       },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_SF_API_KEY),
+      isEnabled: false, // Disabled - no adapter implemented
       priority: 6,
     });
 
@@ -161,7 +161,7 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 30000,
       },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_LA_API_KEY),
+      isEnabled: false, // Disabled - no adapter implemented
       priority: 6,
     });
 
@@ -181,7 +181,7 @@ export class ApiConfigManager {
         backoffMultiplier: 2,
         maxBackoffTime: 30000,
       },
-      isEnabled: true, // Always enabled since no API key required
+      isEnabled: false, // Disabled - causing 400 errors
       priority: 6,
     });
 
@@ -201,7 +201,7 @@ export class ApiConfigManager {
         backoffMultiplier: 1.5,
         maxBackoffTime: 10000,
       },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_SUPABASE_URL),
+      isEnabled: false, // Disabled until adapter is implemented
       priority: 10,
     });
   }

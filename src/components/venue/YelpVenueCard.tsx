@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import type { Venue } from "../../types";
 
 interface YelpVenueCardProps {
-  venue: Venue;
+  venue: Venue & { distance?: string };
   onPress?: (venue: Venue) => void;
   style?: any;
 }
@@ -29,8 +29,9 @@ const YelpVenueCard: React.FC<YelpVenueCardProps> = ({
     return stars;
   };
 
-  const formatDistance = (distance?: number) => {
+  const formatDistance = (distance?: string | number) => {
     if (!distance) return "";
+    if (typeof distance === "string") return distance;
     return `${distance} min walk`;
   };
 
@@ -99,7 +100,9 @@ const YelpVenueCard: React.FC<YelpVenueCardProps> = ({
             </Text>
           </View>
 
-          <Text style={styles.distanceText}>{formatDistance(15)}</Text>
+          <Text style={styles.distanceText}>
+            {formatDistance(venue.distance)}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
