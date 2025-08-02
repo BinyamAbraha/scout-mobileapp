@@ -1,9 +1,4 @@
-import type {
-  SearchQuery,
-  Venue,
-  DataSource,
-  SearchFilters,
-} from "../types";
+import type { SearchQuery, Venue, DataSource, SearchFilters } from "../types";
 import { ApiRegistry } from "./ApiRegistry";
 import { DataPipeline } from "./DataPipeline";
 import { CacheManager } from "./CacheManager";

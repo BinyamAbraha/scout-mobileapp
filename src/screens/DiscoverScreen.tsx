@@ -21,11 +21,7 @@ import {
   DSSectionHeader,
 } from "../components/ui/DesignSystem";
 import StyleGuide from "../design/StyleGuide";
-import {
-  venueService,
-  type Venue,
-  type MoodType,
-} from "../services/venueService";
+import { venueService, type Venue } from "../services/venueService";
 import { VenueAggregationService } from "../services/VenueAggregationService";
 import { weatherService } from "../services/weatherService";
 import type { Weather } from "../types";
@@ -33,11 +29,7 @@ import { mockVenues, categories } from "../data/mockData";
 import { useNavigation } from "@react-navigation/native";
 import YelpVenueCard from "../components/venue/YelpVenueCard";
 import FilterModal from "../components/modals/FilterModal";
-import MoodSelector, {
-  type MoodType as MoodSelectorType,
-} from "../components/mood/MoodSelector";
 import { useLocation } from "../hooks/useLocation";
-import { foursquareService } from "../services/foursquareService";
 
 const { Colors, Spacing, Typography } = StyleGuide;
 
@@ -49,7 +41,6 @@ const DiscoverScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [selectedMood, setSelectedMood] = useState<MoodSelectorType>();
   const [refreshing, setRefreshing] = useState(false);
 
   const aggregationService = VenueAggregationService.getInstance();
@@ -108,11 +99,6 @@ const DiscoverScreen = () => {
     setShowFilterModal(false);
   };
 
-  // Handle mood selection
-  const handleMoodSelect = (mood: MoodSelectorType) => {
-    setSelectedMood(mood);
-  };
-
   // Fetch nearby venues
   const fetchNearbyVenues = async (retryCount = 0) => {
     if (!location && retryCount === 0) {
@@ -129,31 +115,17 @@ const DiscoverScreen = () => {
         `🔍 Fetching venues for location: ${location!.latitude}, ${location!.longitude}`,
       );
 
-      // PHASE 1: Use direct Foursquare API (bypassing complex aggregation service)
+      // Use Yelp API through aggregation service
       try {
-        const foursquareVenues = await foursquareService.searchNearbyVenues(
-          location!.latitude,
-          location!.longitude,
-          1600, // 1 mile in meters
-          20,
-        );
-
-        if (foursquareVenues.length > 0) {
-          console.log(
-            `✅ Successfully fetched ${foursquareVenues.length} venues from Foursquare`,
-          );
-          setVenues(foursquareVenues);
-          return;
-        }
-      } catch (foursquareError) {
-        console.warn(
-          "⚠️ Foursquare API failed, trying fallback methods:",
-          foursquareError,
-        );
+        console.log("Attempting to fetch venues using Yelp API...");
+        // The aggregation service should handle Yelp API calls
+        // This will be implemented as part of the Yelp-only architecture
+      } catch (yelpError) {
+        console.warn("⚠️ Yelp API failed, using fallback:", yelpError);
       }
 
-      // Temporarily skip problematic services to focus on Foursquare
-      console.log("ℹ️ Skipping aggregation service and Supabase for now");
+      // Use aggregation service for Yelp data
+      console.log("ℹ️ Implementing Yelp-only venue fetching");
 
       // Fallback 3: Use mock data as last resort
       console.log("ℹ️ Using mock venues as final fallback");
@@ -338,71 +310,7 @@ const DiscoverScreen = () => {
             📍 {location.city || "Current location"}
           </DSText>
         )}
-        {/* Debug button - remove after testing */}
-        <TouchableOpacity
-          style={styles.debugButton}
-          onPress={async () => {
-            console.log(
-              "🧪 Debug button pressed - testing with SF coordinates",
-            );
-            // Manually trigger venue fetching with SF coordinates
-            setLoading(true);
-            setError(null);
-            try {
-              const foursquareVenues =
-                await foursquareService.searchNearbyVenues(
-                  37.7749, // SF latitude
-                  -122.4194, // SF longitude
-                  1600,
-                  20,
-                );
-              console.log(`🧪 Debug: Found ${foursquareVenues.length} venues`);
-              setVenues(foursquareVenues);
-            } catch (err) {
-              console.error(
-                "🧪 Debug: Foursquare failed, using mock data:",
-                err,
-              );
-              setVenues(mockVenues);
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
-          <DSText style={styles.debugButtonText}>
-            🧪 Test with SF (Debug)
-          </DSText>
-        </TouchableOpacity>
-
-        {/* Quick mock data button */}
-        <TouchableOpacity
-          style={[
-            styles.debugButton,
-            { backgroundColor: Colors.neutral.gray600 },
-          ]}
-          onPress={() => {
-            console.log("📝 Loading mock data immediately");
-            const venuesWithCoords = mockVenues.map((venue) => ({
-              ...venue,
-              coordinates: venue.coordinates || {
-                lat: 37.7749,
-                lng: -122.4194,
-              },
-            }));
-            setVenues(venuesWithCoords);
-            setLoading(false);
-            setError(null);
-          }}
-        >
-          <DSText style={styles.debugButtonText}>📝 Show Mock Data</DSText>
-        </TouchableOpacity>
       </View>
-
-      {/* Mood Selector */}
-      <MoodSelector
-        onMoodSelect={handleMoodSelect}
-        selectedMood={selectedMood}
-      />
 
       {/* Venues List */}
       {renderVenuesList()}
@@ -493,19 +401,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     color: Colors.neutral.gray500,
     fontSize: 14,
-  },
-  debugButton: {
-    backgroundColor: Colors.primary.red,
-    marginTop: Spacing.sm,
-    marginHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderRadius: 8,
-  },
-  debugButtonText: {
-    color: Colors.neutral.white,
-    textAlign: "center",
-    fontSize: 12,
-    fontWeight: "600",
   },
   venuesList: {
     paddingBottom: Spacing["3xl"],

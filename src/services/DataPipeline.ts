@@ -33,7 +33,7 @@ export class DataPipeline {
     this.apiRegistry = ApiRegistry.getInstance();
     this.normalizationEngine = DataNormalizationEngine.getInstance();
     this.config = {
-      sources: ["yelp", "google_places", "foursquare", "openstreetmap"],
+      sources: ["yelp", "google_places", "openstreetmap"],
       syncInterval: 60, // 1 hour
       batchSize: 50,
       conflictResolution: "highest_confidence",

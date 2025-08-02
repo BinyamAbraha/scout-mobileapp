@@ -313,11 +313,7 @@ export class ErrorHandler {
     const sources: DataSource[] = [
       "yelp",
       "google_places",
-      "foursquare",
       "openstreetmap",
-      "nyc_api",
-      "sf_api",
-      "la_api",
       "internal",
     ];
 
@@ -523,11 +519,7 @@ export class ErrorHandler {
     const sources: DataSource[] = [
       "yelp",
       "google_places",
-      "foursquare",
       "openstreetmap",
-      "nyc_api",
-      "sf_api",
-      "la_api",
       "internal",
     ];
 

@@ -320,12 +320,7 @@ export interface SearchFilters {
 export type DataSource =
   | "yelp"
   | "openstreetmap"
-  | "foursquare"
   | "google_places"
-  | "nyc_api"
-  | "sf_api"
-  | "la_api"
-  | "city_apis"
   | "internal";
 
 export interface DataSourceInfo {

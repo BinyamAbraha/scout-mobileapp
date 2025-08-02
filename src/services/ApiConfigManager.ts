@@ -45,26 +45,6 @@ export class ApiConfigManager {
       priority: 8,
     });
 
-    // Foursquare API Configuration
-    this.configs.set("foursquare", {
-      source: "foursquare",
-      apiKey: process.env.EXPO_PUBLIC_FOURSQUARE_API_KEY || "",
-      baseUrl: "https://api.foursquare.com/v3",
-      rateLimit: {
-        requestsPerMinute: 50,
-        requestsPerHour: 2500,
-        requestsPerDay: 100000,
-      },
-      timeout: 8000,
-      retryConfig: {
-        maxRetries: 3,
-        backoffMultiplier: 2,
-        maxBackoffTime: 30000,
-      },
-      isEnabled: Boolean(process.env.EXPO_PUBLIC_FOURSQUARE_API_KEY),
-      priority: 7,
-    });
-
     // Google Places API Configuration
     this.configs.set("google_places", {
       source: "google_places",
@@ -103,86 +83,6 @@ export class ApiConfigManager {
       },
       isEnabled: false, // Disabled until adapter is implemented
       priority: 5,
-    });
-
-    // NYC Open Data API Configuration
-    this.configs.set("nyc_api", {
-      source: "nyc_api",
-      apiKey: process.env.EXPO_PUBLIC_NYC_API_KEY || "",
-      baseUrl: "https://data.cityofnewyork.us/resource",
-      rateLimit: {
-        requestsPerMinute: 100,
-        requestsPerHour: 2000,
-        requestsPerDay: 50000,
-      },
-      timeout: 15000,
-      retryConfig: {
-        maxRetries: 3,
-        backoffMultiplier: 2,
-        maxBackoffTime: 30000,
-      },
-      isEnabled: false, // Disabled - no adapter implemented
-      priority: 6,
-    });
-
-    // San Francisco Open Data API Configuration
-    this.configs.set("sf_api", {
-      source: "sf_api",
-      apiKey: process.env.EXPO_PUBLIC_SF_API_KEY || "",
-      baseUrl: "https://data.sfgov.org/resource",
-      rateLimit: {
-        requestsPerMinute: 100,
-        requestsPerHour: 2000,
-        requestsPerDay: 50000,
-      },
-      timeout: 15000,
-      retryConfig: {
-        maxRetries: 3,
-        backoffMultiplier: 2,
-        maxBackoffTime: 30000,
-      },
-      isEnabled: false, // Disabled - no adapter implemented
-      priority: 6,
-    });
-
-    // Los Angeles Open Data API Configuration
-    this.configs.set("la_api", {
-      source: "la_api",
-      apiKey: process.env.EXPO_PUBLIC_LA_API_KEY || "",
-      baseUrl: "https://data.lacity.org/resource",
-      rateLimit: {
-        requestsPerMinute: 100,
-        requestsPerHour: 2000,
-        requestsPerDay: 50000,
-      },
-      timeout: 15000,
-      retryConfig: {
-        maxRetries: 3,
-        backoffMultiplier: 2,
-        maxBackoffTime: 30000,
-      },
-      isEnabled: false, // Disabled - no adapter implemented
-      priority: 6,
-    });
-
-    // Unified City APIs Configuration (NYC, SF, LA)
-    this.configs.set("city_apis", {
-      source: "city_apis",
-      apiKey: "", // Public endpoints don't require API keys
-      baseUrl: "https://data.cityofnewyork.us/resource", // Base URL - adapter handles multiple endpoints
-      rateLimit: {
-        requestsPerMinute: 150, // Combined rate limit for all city APIs
-        requestsPerHour: 6000,
-        requestsPerDay: 150000,
-      },
-      timeout: 15000,
-      retryConfig: {
-        maxRetries: 3,
-        backoffMultiplier: 2,
-        maxBackoffTime: 30000,
-      },
-      isEnabled: false, // Disabled - causing 400 errors
-      priority: 6,
     });
 
     // Internal/Supabase Configuration
@@ -247,11 +147,7 @@ export class ApiConfigManager {
     // Check if API key is required and present
     const sourcesNeedingApiKey: DataSource[] = [
       "yelp",
-      "foursquare",
       "google_places",
-      "nyc_api",
-      "sf_api",
-      "la_api",
       "internal",
     ];
 
@@ -284,11 +180,7 @@ export class ApiConfigManager {
 
     const optionalEnvVars = [
       "EXPO_PUBLIC_YELP_API_KEY",
-      "EXPO_PUBLIC_FOURSQUARE_API_KEY",
       "EXPO_PUBLIC_GOOGLE_PLACES_API_KEY",
-      "EXPO_PUBLIC_NYC_API_KEY",
-      "EXPO_PUBLIC_SF_API_KEY",
-      "EXPO_PUBLIC_LA_API_KEY",
     ];
 
     const missingOptional = optionalEnvVars.filter(

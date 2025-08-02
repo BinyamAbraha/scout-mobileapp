@@ -485,7 +485,6 @@ export class CacheManager {
     const defaults = {
       yelp: this.config.apiResponseTTL * 60 * 1000,
       google_places: this.config.apiResponseTTL * 60 * 1000,
-      foursquare: this.config.apiResponseTTL * 60 * 1000,
       openstreetmap: this.config.apiResponseTTL * 2 * 60 * 1000, // OSM data changes less frequently
       internal: this.config.processedDataTTL * 60 * 1000,
     };

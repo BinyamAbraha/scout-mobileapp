@@ -97,61 +97,26 @@ export class DataNormalizationEngine {
     return [
       {
         field: "name",
-        sources: [
-          "yelp",
-          "google_places",
-          "foursquare",
-          "city_apis",
-          "nyc_api",
-          "sf_api",
-          "la_api",
-          "openstreetmap",
-        ],
+        sources: ["yelp", "google_places", "openstreetmap"],
         priority: 10,
         validate: (value: string) => Boolean(value && value.length > 0),
       },
       {
         field: "address",
-        sources: [
-          "google_places",
-          "yelp",
-          "foursquare",
-          "city_apis",
-          "nyc_api",
-          "sf_api",
-          "la_api",
-          "openstreetmap",
-        ],
+        sources: ["google_places", "yelp", "openstreetmap"],
         priority: 9,
         transform: (value: string) => this.normalizeAddress(value),
         validate: (value: string) => Boolean(value && value.length > 0),
       },
       {
         field: "coordinates",
-        sources: [
-          "google_places",
-          "yelp",
-          "foursquare",
-          "openstreetmap",
-          "city_apis",
-          "nyc_api",
-          "sf_api",
-          "la_api",
-        ],
+        sources: ["google_places", "yelp", "openstreetmap"],
         priority: 10,
         validate: (value: any) => Boolean(value && value.lat && value.lng),
       },
       {
         field: "category",
-        sources: [
-          "yelp",
-          "foursquare",
-          "google_places",
-          "city_apis",
-          "nyc_api",
-          "sf_api",
-          "la_api",
-        ],
+        sources: ["yelp", "google_places"],
         priority: 8,
         transform: (value: string, source: DataSource) =>
           this.normalizeCategory(value, source),
@@ -159,14 +124,14 @@ export class DataNormalizationEngine {
       },
       {
         field: "subcategory",
-        sources: ["yelp", "foursquare", "google_places"],
+        sources: ["yelp", "google_places"],
         priority: 6,
         transform: (value: string, source: DataSource) =>
           this.normalizeSubcategory(value, source),
       },
       {
         field: "rating",
-        sources: ["yelp", "google_places", "foursquare"],
+        sources: ["yelp", "google_places"],
         priority: 9,
         transform: (value: number, source: DataSource) =>
           this.normalizeRating(value, source),
@@ -174,13 +139,13 @@ export class DataNormalizationEngine {
       },
       {
         field: "review_count",
-        sources: ["yelp", "google_places", "foursquare"],
+        sources: ["yelp", "google_places"],
         priority: 8,
         validate: (value: number) => value >= 0,
       },
       {
         field: "price_range",
-        sources: ["yelp", "google_places", "foursquare"],
+        sources: ["yelp", "google_places"],
         priority: 7,
         transform: (value: any, source: DataSource) =>
           this.normalizePriceRange(value, source),
@@ -188,46 +153,38 @@ export class DataNormalizationEngine {
       },
       {
         field: "phone",
-        sources: [
-          "yelp",
-          "google_places",
-          "foursquare",
-          "city_apis",
-          "nyc_api",
-          "sf_api",
-          "la_api",
-        ],
+        sources: ["yelp", "google_places"],
         priority: 6,
         transform: (value: string) => this.normalizePhoneNumber(value),
       },
       {
         field: "website",
-        sources: ["yelp", "google_places", "foursquare"],
+        sources: ["yelp", "google_places"],
         priority: 6,
         validate: (value: string) => this.isValidUrl(value),
       },
       {
         field: "description",
-        sources: ["yelp", "foursquare", "google_places"],
+        sources: ["yelp", "google_places"],
         priority: 5,
         transform: (value: string) => this.normalizeDescription(value),
       },
       {
         field: "image_url",
-        sources: ["yelp", "google_places", "foursquare"],
+        sources: ["yelp", "google_places"],
         priority: 7,
         transform: (value: string | string[]) => this.normalizeImageUrl(value),
       },
       {
         field: "features",
-        sources: ["yelp", "foursquare", "google_places"],
+        sources: ["yelp", "google_places"],
         priority: 6,
         transform: (value: string[], source: DataSource) =>
           this.normalizeFeatures(value, source),
       },
       {
         field: "mood_tags",
-        sources: ["yelp", "foursquare", "google_places"],
+        sources: ["yelp", "google_places"],
         priority: 8,
         transform: (value: any, source: DataSource) =>
           this.deriveMoodTags(value, source),
@@ -324,15 +281,8 @@ export class DataNormalizationEngine {
     switch (source) {
       case "yelp":
         return this.normalizeYelpCategory(category);
-      case "foursquare":
-        return this.normalizeFoursquareCategory(category);
       case "google_places":
         return this.normalizeGooglePlacesCategory(category);
-      case "city_apis":
-      case "nyc_api":
-      case "sf_api":
-      case "la_api":
-        return this.normalizeCityApiCategory(category);
       default:
         return category;
     }
@@ -352,14 +302,8 @@ export class DataNormalizationEngine {
     if (!rating) return 0;
 
     // Convert different rating scales to 0-5 scale
-    switch (source) {
-      case "foursquare":
-        // Foursquare uses 0-10 scale
-        return Math.min(5, (rating / 10) * 5);
-      default:
-        // Yelp and Google use 0-5 scale
-        return Math.min(5, Math.max(0, rating));
-    }
+    // All remaining sources (Yelp, Google Places) use 0-5 scale
+    return Math.min(5, Math.max(0, rating));
   }
 
   private normalizePriceRange(priceLevel: any, source: DataSource): number {
@@ -469,12 +413,7 @@ export class DataNormalizationEngine {
     const priorities: Record<DataSource, number> = {
       google_places: 10,
       yelp: 9,
-      foursquare: 8,
       internal: 7,
-      city_apis: 6,
-      nyc_api: 6,
-      sf_api: 6,
-      la_api: 6,
       openstreetmap: 5,
     };
     return priorities[source] || 1;
@@ -561,19 +500,6 @@ export class DataNormalizationEngine {
     return yelpMapping[normalized] || category;
   }
 
-  private normalizeFoursquareCategory(category: string): string {
-    const foursquareMapping: Record<string, string> = {
-      "food and drink": "Restaurant",
-      nightlife: "Entertainment",
-      retail: "Shopping",
-      "arts and entertainment": "Entertainment",
-      "outdoors and recreation": "Activity",
-    };
-
-    const normalized = category.toLowerCase();
-    return foursquareMapping[normalized] || category;
-  }
-
   private normalizeGooglePlacesCategory(category: string): string {
     const googleMapping: Record<string, string> = {
       restaurant: "Restaurant",
@@ -585,36 +511,6 @@ export class DataNormalizationEngine {
 
     const normalized = category.toLowerCase();
     return googleMapping[normalized] || category;
-  }
-
-  private normalizeCityApiCategory(category: string): string {
-    const cityMapping: Record<string, string> = {
-      // NYC specific categories
-      "food establishment": "Restaurant",
-      "liquor store": "Shopping",
-      "tobacco retail dealer": "Shopping",
-      "catering establishment": "Restaurant",
-
-      // SF specific categories
-      "restaurants - food service": "Restaurant",
-      "retail sales": "Shopping",
-      entertainment: "Entertainment",
-      "personal services": "Services",
-
-      // LA specific categories
-      restaurant: "Restaurant",
-      retail: "Shopping",
-      "entertainment venue": "Entertainment",
-      "business license": "Business",
-
-      // Common government license types
-      licensed: "Business",
-      business: "Business",
-      commercial: "Business",
-    };
-
-    const normalized = category.toLowerCase();
-    return cityMapping[normalized] || "Business";
   }
 
   private mapFeatureName(feature: string, source: DataSource): string {
