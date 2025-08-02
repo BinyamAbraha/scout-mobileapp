@@ -8,6 +8,8 @@ import {
   SafeAreaView,
   Keyboard,
   Animated,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +22,8 @@ import {
   Icons,
 } from "../components/ui/DesignSystem";
 import StyleGuide from "../design/StyleGuide";
+import { venueService, type Venue } from "../services/venueService";
+import YelpVenueCard from "../components/venue/YelpVenueCard";
 
 const { Colors, Spacing, Typography, Borders, Shadows } = StyleGuide;
 
@@ -40,6 +44,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
     "Sushi",
     "Best Restaurants",
   ]);
+  const [searchResults, setSearchResults] = useState<Venue[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -80,22 +87,46 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
     return () => clearTimeout(timer);
   }, [slideAnim]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim()) {
-      // Add to recent searches if not already there
-      if (!recentSearches.includes(searchQuery.trim())) {
-        setRecentSearches((prev) => [searchQuery.trim(), ...prev.slice(0, 4)]);
+      setLoading(true);
+      setHasSearched(true);
+      
+      try {
+        // Search venues using the venue service
+        const results = await venueService.searchVenues(searchQuery.trim(), undefined, 20);
+        setSearchResults(results);
+        
+        // Add to recent searches if not already there
+        if (!recentSearches.includes(searchQuery.trim())) {
+          setRecentSearches((prev) => [searchQuery.trim(), ...prev.slice(0, 4)]);
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
       }
 
       Keyboard.dismiss();
-      // Navigate back to home with search results
-      navigation.goBack();
     }
   };
 
-  const handleRecentSearch = (query: string) => {
+  const handleRecentSearch = async (query: string) => {
     setSearchQuery(query);
-    handleSearch();
+    // Trigger search with the selected query
+    setLoading(true);
+    setHasSearched(true);
+    
+    try {
+      const results = await venueService.searchVenues(query, undefined, 20);
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleQuickFilter = (filterId: string) => {
@@ -190,8 +221,38 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ route }) => {
             </ScrollView>
           </View>
 
+          {/* Search Results */}
+          {hasSearched && (
+            <View style={styles.resultsSection}>
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color={Colors.primary.red} />
+                  <DSText style={styles.loadingText}>Searching venues...</DSText>
+                </View>
+              ) : (
+                <>
+                  <DSText style={styles.sectionTitle}>
+                    {searchResults.length > 0 
+                      ? `${searchResults.length} results for "${searchQuery}"` 
+                      : `No results for "${searchQuery}"`}
+                  </DSText>
+                  {searchResults.map((venue) => (
+                    <YelpVenueCard
+                      key={venue.id}
+                      venue={venue}
+                      onPress={(venue) => {
+                        console.log("Selected venue:", venue.name);
+                        // Here you could navigate to venue details
+                      }}
+                    />
+                  ))}
+                </>
+              )}
+            </View>
+          )}
+
           {/* Recently searched */}
-          {recentSearches.length > 0 && (
+          {!hasSearched && recentSearches.length > 0 && (
             <View style={styles.recentSection}>
               <DSText style={styles.sectionTitle}>Recently searched</DSText>
               {recentSearches.map((query, index) => (
@@ -308,6 +369,19 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.neutral.gray900,
     marginBottom: Spacing.md,
+  },
+  resultsSection: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing["2xl"],
+  },
+  loadingText: {
+    marginTop: Spacing.md,
+    color: Colors.neutral.gray600,
   },
 });
 

@@ -25,7 +25,7 @@ import { venueService, type Venue } from "../services/venueService";
 import { VenueAggregationService } from "../services/VenueAggregationService";
 import { weatherService } from "../services/weatherService";
 import type { Weather } from "../types";
-import { mockVenues, categories } from "../data/mockData";
+import { categories } from "../data/mockData";
 import { useNavigation } from "@react-navigation/native";
 import YelpVenueCard from "../components/venue/YelpVenueCard";
 import FilterModal from "../components/modals/FilterModal";
@@ -51,14 +51,13 @@ const DiscoverScreen = () => {
     requestLocation,
   } = useLocation();
 
-  // Emergency fallback - show mock data after 10 seconds if still loading
+  // Emergency fallback - show error after 10 seconds if still loading
   useEffect(() => {
     const emergencyTimeout = setTimeout(() => {
       if (loading && venues.length === 0) {
-        console.log("🚨 EMERGENCY: Still loading after 10s, forcing mock data");
+        console.log("🚨 EMERGENCY: Still loading after 10s, showing error");
         setLoading(false);
-        setVenues(mockVenues);
-        setError(null);
+        setError("Loading took too long. Please try again.");
       }
     }, 10000);
 
@@ -99,47 +98,31 @@ const DiscoverScreen = () => {
     setShowFilterModal(false);
   };
 
-  // Fetch nearby venues
-  const fetchNearbyVenues = async (retryCount = 0) => {
-    if (!location && retryCount === 0) {
-      setLoading(false);
-      setError("Unable to get location. Please enable location services.");
-      return;
-    }
-
+  // Fetch venues from Supabase
+  const fetchVenues = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log(
-        `🔍 Fetching venues for location: ${location!.latitude}, ${location!.longitude}`,
-      );
+      console.log("🔍 Fetching venues from Supabase database...");
 
-      // Use Yelp API through aggregation service
-      try {
-        console.log("Attempting to fetch venues using Yelp API...");
-        // The aggregation service should handle Yelp API calls
-        // This will be implemented as part of the Yelp-only architecture
-      } catch (yelpError) {
-        console.warn("⚠️ Yelp API failed, using fallback:", yelpError);
+      // First try to get all venues from the database
+      const result = await venueService.getAllVenues();
+      
+      if (result.error) {
+        throw new Error(result.error);
       }
 
-      // Use aggregation service for Yelp data
-      console.log("ℹ️ Implementing Yelp-only venue fetching");
-
-      // Fallback 3: Use mock data as last resort
-      console.log("ℹ️ Using mock venues as final fallback");
-      console.log("📝 Mock venues data:", mockVenues.length, "venues");
-      // Add coordinates to mock venues if missing
-      const venuesWithCoords = mockVenues.map((venue) => ({
-        ...venue,
-        coordinates: venue.coordinates || { lat: 37.7749, lng: -122.4194 },
-      }));
-      setVenues(venuesWithCoords);
+      if (result.data && result.data.length > 0) {
+        console.log(`✅ Successfully loaded ${result.data.length} venues from database`);
+        setVenues(result.data);
+      } else {
+        console.log("⚠️ No venues found in database");
+        setError("No venues found. Please check if your database is populated.");
+      }
     } catch (err) {
-      console.error("❌ Error in fetchNearbyVenues:", err);
-      setError("Failed to load venues. Please try again.");
-      setVenues(mockVenues);
+      console.error("❌ Error fetching venues from Supabase:", err);
+      setError("Failed to load venues from database. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -148,7 +131,7 @@ const DiscoverScreen = () => {
   // Handle refresh
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchNearbyVenues();
+    await fetchVenues();
     setRefreshing(false);
   };
 
@@ -157,7 +140,7 @@ const DiscoverScreen = () => {
     if (locationError) {
       requestLocation();
     } else {
-      fetchNearbyVenues();
+      fetchVenues();
     }
   };
 
@@ -192,29 +175,18 @@ const DiscoverScreen = () => {
     return `${distance.toFixed(1)}mi`;
   };
 
-  // Auto-fetch venues when location is available
+  // Auto-fetch venues when component mounts or needs refresh
   useEffect(() => {
     console.log("🔄 DiscoverScreen useEffect triggered:", {
-      location: location
-        ? `${location.latitude}, ${location.longitude}`
-        : "null",
       loading,
-      locationLoading,
       venuesCount: venues.length,
     });
 
-    if (location && !locationLoading && venues.length === 0) {
-      console.log("✅ Conditions met, calling fetchNearbyVenues");
-      fetchNearbyVenues();
-    } else {
-      console.log("⏳ Waiting for conditions:", {
-        hasLocation: !!location,
-        loading,
-        locationLoading,
-        venuesCount: venues.length,
-      });
+    if (!loading && venues.length === 0) {
+      console.log("✅ Fetching venues from database");
+      fetchVenues();
     }
-  }, [location, locationLoading, venues.length]);
+  }, []);
 
   // Render venues list
   const renderVenuesList = () => (

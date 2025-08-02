@@ -1,5 +1,6 @@
 import { supabase } from "../utils/supabase";
 import { Venue, MoodType, Weather, SearchFilters } from "../types";
+import { DatabaseAdapter } from "./DatabaseAdapter";
 
 // Enhanced filter interface for advanced queries
 interface VenueFilters extends SearchFilters {
@@ -158,7 +159,7 @@ class VenueService {
 
   // Get all venues with enhanced caching and error handling
   async getAllVenues(
-    city: string = "New York",
+    city?: string,
   ): Promise<ServiceResponse<Venue[]>> {
     const cacheKey = `venues_${city}`;
     const cachedData = this.getCachedData(cacheKey);
@@ -168,14 +169,13 @@ class VenueService {
     }
 
     return this.handleServiceCall("getAllVenues", async () => {
-      const { data, error } = await supabase
-        .from("venues")
-        .select("*")
-        .eq("city", city)
-        .order("rating", { ascending: false });
+      const result = await DatabaseAdapter.getAllVenues(city);
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-      if (error) throw error;
-      const venues = data || [];
+      const venues = result.data || [];
       this.setCachedData(cacheKey, venues);
       return venues;
     });
@@ -495,14 +495,7 @@ class VenueService {
   // Get venue by ID
   async getVenueById(id: string): Promise<Venue | null> {
     try {
-      const { data, error } = await supabase
-        .from("venues")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      return data;
+      return await DatabaseAdapter.getVenueById(id);
     } catch (error) {
       console.error("Error fetching venue by ID:", error);
       throw error;
@@ -515,15 +508,7 @@ class VenueService {
     city: string = "New York",
   ): Promise<Venue[]> {
     try {
-      const { data, error } = await supabase
-        .from("venues")
-        .select("*")
-        .eq("city", city)
-        .eq("category", category)
-        .order("rating", { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      return await DatabaseAdapter.getVenuesByCategory(category, city);
     } catch (error) {
       console.error("Error fetching venues by category:", error);
       throw error;
@@ -581,24 +566,11 @@ class VenueService {
   // Search venues with autocomplete
   async searchVenues(
     searchQuery: string,
-    city: string = "New York",
+    city?: string,
     limit: number = 10,
   ): Promise<Venue[]> {
     try {
-      const searchTerm = `%${searchQuery}%`;
-
-      const { data, error } = await supabase
-        .from("venues")
-        .select("*")
-        .eq("city", city)
-        .or(
-          `name.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},subcategory.ilike.${searchTerm}`,
-        )
-        .order("rating", { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data || [];
+      return await DatabaseAdapter.searchVenues(searchQuery, city, limit);
     } catch (error) {
       console.error("Error searching venues:", error);
       throw error;
